@@ -1,0 +1,44 @@
+// ==UserScript==
+// @name         BingBot
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  script for Yandex
+// @author       Ekaterina Balabanidis
+// @match        https://www.bing.com/*
+// @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
+// @grant        none
+// ==/UserScript==
+
+
+
+
+
+let keywords = ["вывод произвольных полей WordPress", "10 самых популярных шрифтов от Google", "Отключение редакций и ревизий в WordPress"];
+let keyword = keywords[getRandom(0, keywords.length)];
+let links = document.links;
+
+if(document.getElementById('search_icon') !== null) {
+let btnK = document.getElementById('search_icon');
+let a = btnK.getAttribute('tabindex');
+
+if(a == '-1') {
+  document.getElementById("sb_form_q").value = keyword;
+    btnK.setAttribute('tabindex', 1);
+
+    btnK.click();
+}
+}
+else {
+    for(let i=0; i<links.length; i++) {
+        if(links[i].href.indexOf("napli.ru") !== -1) {
+            let link = links[i];
+            console.log("Нашел строку" + link);
+            document.location.href = link;
+            break;
+    };
+    };
+};
+
+function getRandom(min, max) {
+return Math.floor(Math.random()*(max - min) + min);
+}
