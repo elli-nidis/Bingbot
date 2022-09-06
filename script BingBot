@@ -5,6 +5,7 @@
 // @description  script for Yandex
 // @author       Ekaterina Balabanidis
 // @match        https://www.bing.com/*
+// @match        https://napli.ru/*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
 // ==/UserScript==
@@ -13,30 +14,68 @@
 
 
 
-let keywords = ["вывод произвольных полей WordPress", "10 самых популярных шрифтов от Google", "Отключение редакций и ревизий в WordPress"];
+let keywords = ["Вывод произвольных полей WordPress", "10 популярных шрифтов от Google", "Взаимодействие PHP и MySQL"];
 let keyword = keywords[getRandom(0, keywords.length)];
 let links = document.links;
 
+
 if(document.getElementById('search_icon') !== null) {
-let btnK = document.getElementById('search_icon');
-let a = btnK.getAttribute('tabindex');
+    let bingInput = document.getElementById('sb_form_q');
+    let btnK = document.getElementById('search_icon');
+    let a = btnK.getAttribute('tabindex');
 
-if(a == '-1') {
-  document.getElementById("sb_form_q").value = keyword;
-    btnK.setAttribute('tabindex', 1);
+    if(a == '-1') {
+        let j = 0;
+        let timerId = setInterval(()=> {
+            bingInput.value += keyword[j];
+            j++;
+            if (j == keyword.length) {
+                clearInterval(timerId);
+                setTimeout(()=>{
+                    btnK.setAttribute('tabindex', 1);
+                    btnK.click();
+                }, getRandom(3500, 4500));
 
-    btnK.click();
+            };
+        }, 50);
+    }
 }
+else if(location.hostname == "napli.ru"){
+    console.log('Я на целевом сайте');
+    setInterval(()=>{
+        let index = getRandom(0, links.length);
+        if(getRandom(0, 101) > 60){
+            location.href = " https://www.bing.com/";
+        }
+        if(links[index].href.indexOf('napli.ru') !== -1){
+            links[index].click();}
+    }, getRandom(2000, 3500))
 }
 else {
+    let nextBingPage = true;
     for(let i=0; i<links.length; i++) {
+       // console.log("Зашел в цикл поиска нужной ссылки в массиве из " + links.length + " ссылок страницы. Проверяю i = " + i + " links[i] = " + links[i]);
         if(links[i].href.indexOf("napli.ru") !== -1) {
             let link = links[i];
-            console.log("Нашел строку" + link);
-            document.location.href = link;
+            console.log("Нашел строку " + link);
+            nextBingPage = false;
+            setTimeout(()=>{
+                document.location.href = link;
+      }, getRandom(3500,4500))
             break;
     };
+    }
+    if(document.querySelector(".sb_pagS").innerText == 4){
+        nextBingPage = false;
+        location.href = " https://www.bing.com/";
     };
+     if(nextBingPage) {
+         let pageNumber = document.querySelector(".sb_pagS").innerText;
+            console.log("На странице " + pageNumber + " не нашел napli.ru");
+         setTimeout(()=>{
+            let nextPage = document.getElementsByClassName('sb_pagN');
+            nextPage[0].click(true);}, getRandom(3000, 5000));
+        }
 };
 
 function getRandom(min, max) {
